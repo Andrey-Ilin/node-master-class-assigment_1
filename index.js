@@ -3,40 +3,40 @@
 *
 */
 
-var http = require('http');
-var url = require('url');
-var StringDecoder = require('string_decoder').StringDecoder;
-var config = require('./config');
+const http = require('http');
+const url = require('url');
+const StringDecoder = require('string_decoder').StringDecoder;
+const config = require('./config');
 
-var httpServer = http.createServer(function (req, res) {
+const httpServer = http.createServer((req, res) => {
     unifiedServer(req, res);
 });
 
-httpServer.listen(config.port, function () {
-    console.log("Server is listening on port " + config.port + " in " + config.envName + " mode")
+httpServer.listen(config.port, () => {
+    console.log(`Server is listening on port ${config.port} in ${config.envName} mode`)
 });
 
-var unifiedServer = function (req, res) {
-    var parsedUrl = url.parse(req.url, true);
-    var path = parsedUrl.pathname;
-    var trimmedPath = path.replace(/^\/+|\/+$/g,'');
-    var queryStringObject = parsedUrl.query;
-    var method = req.method.toLowerCase();
-    var headers = req.headers;
-    var decoder = new StringDecoder('utf-8');
-    var buffer = '';
+const unifiedServer = (req, res) => {
+    const parsedUrl = url.parse(req.url, true);
+    const path = parsedUrl.pathname;
+    const trimmedPath = path.replace(/^\/+|\/+$/g,'');
+    const queryStringObject = parsedUrl.query;
+    const method = req.method.toLowerCase();
+    const headers = req.headers;
+    const decoder = new StringDecoder('utf-8');
+    let buffer = '';
 
-    req.on('data', function (data) {
+    req.on('data', (data) => {
         buffer += decoder.write(data);
     });
-    req.on('end', function () {
+    req.on('end', () => {
         buffer += decoder.end();
 
         //Choose the handler this request should do
-        var choosenHandler = typeof(router[trimmedPath]) !== 'undefined' ? router[trimmedPath] : handlers.notFound;
+        const choosenHandler = typeof(router[trimmedPath]) !== 'undefined' ? router[trimmedPath] : handlers.notFound;
 
         //Construct data object to send to the handler
-        var data = {
+        const data = {
             trimmedPath: trimmedPath,
             queryStringObject: queryStringObject,
             method: method,
@@ -45,7 +45,7 @@ var unifiedServer = function (req, res) {
         };
 
         //Route the request to the handler specified in the router
-        choosenHandler(data, function (statusCode, payload) {
+        choosenHandler(data, (statusCode, payload) => {
             //Use the status code defined by handler, or default 200
             statusCode = typeof(statusCode) == 'number' ? statusCode : 200;
 
@@ -53,7 +53,7 @@ var unifiedServer = function (req, res) {
             payload = typeof(payload) == 'object' ? payload : {};
 
             //Convert payload to string
-            var payloadString = JSON.stringify(payload);
+            const payloadString = JSON.stringify(payload);
 
             //Return response
             res.setHeader('Content-Type','application/json');
@@ -66,10 +66,9 @@ var unifiedServer = function (req, res) {
     });
 };
 
-var handlers = {};
+const handlers = {};
 
-handlers.hello = function(data, callback) {
-    console.log(data);
+handlers.hello = (data, callback) => {
     callback(200, {
         message: "Hi!!! This is Node.js Server!!!",
         trimmedPath: data.trimmedPath,
@@ -86,6 +85,6 @@ handlers.notFound = function (data, callback) {
 };
 
 // Define a request routing
-var router = {
+const router = {
     'hello': handlers.hello
 };

@@ -5,7 +5,7 @@
 
 // Container for all the environments
 
-var environments = {};
+const environments = {};
 
 environments.staging = {
     port: 3000,
@@ -17,8 +17,8 @@ environments.production = {
     envName: 'production'
 };
 
-var currentEnvironment = typeof(process.env.NODE_ENV) == 'string' ? process.env.NODE_ENV.toLowerCase() : '';
+const currentEnvironment = typeof(process.env.NODE_ENV) == 'string' ? process.env.NODE_ENV.toLowerCase() : '';
 
-var environmentToExport = typeof(environments[currentEnvironment]) == 'object' ? environments[currentEnvironment] : environments.staging;
+const environmentToExport = typeof(environments[currentEnvironment]) == 'object' ? environments[currentEnvironment] : environments.staging;
 
 module.exports = environmentToExport;
